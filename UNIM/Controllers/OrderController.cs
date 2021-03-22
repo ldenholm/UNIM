@@ -32,7 +32,7 @@ namespace UNIM.Api.Controllers
             {
                 OrderId = id,
                 Timestamp = InVar.Timestamp,
-                CustomerNumber = default(string)
+                CustomerNumber = customerNumber
             });
 
             return Ok(response.Message);
