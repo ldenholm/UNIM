@@ -4,6 +4,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MassTransit;
+using UNIM.Components.CommandHandlers;
+using UNIM.Domain;
+using Microsoft.OpenApi.Models;
+
 namespace UNIM
 {
     public class Startup
@@ -20,8 +24,18 @@ namespace UNIM
         {
             services.AddMassTransit(cfg =>
             {
-                
+                cfg.AddConsumer<SubmitOrderConsumer>();
+                cfg.AddRequestClient<ISubmitOrderCommand>();
+
+                cfg.UsingInMemory(ConfigureBus);
+
             });
+
+            services.AddSwaggerGen(cfg =>
+            {
+                cfg.SwaggerDoc("v1", new OpenApiInfo { Title = "UNIM API", Version = "v1" });
+            });
+
             services.AddControllers();
         }
 
@@ -35,6 +49,10 @@ namespace UNIM
 
             app.UseHttpsRedirection();
 
+            app.UseSwagger();
+
+            app.UseSwaggerUI();
+
             app.UseRouting();
 
             app.UseAuthorization();
@@ -43,6 +61,11 @@ namespace UNIM
             {
                 endpoints.MapControllers();
             });
+        }
+
+        private void ConfigureBus(IBusRegistrationContext context, IInMemoryBusFactoryConfigurator configurator)
+        {
+            configurator.ConfigureEndpoints(context);
         }
     }
 }
